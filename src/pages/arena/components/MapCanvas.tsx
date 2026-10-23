@@ -1,0 +1,941 @@
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { ChevronLeft, SkipBack, RotateCcw, Truck, ChevronDown, ChevronUp, HelpCircle, AlertCircle, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import { Connection, LevelConfig } from '@/types';
+import { formatDistance } from '@utils/findOptimalRoute';
+
+interface MapCanvasProps {
+  level: LevelConfig;
+  selectedRoute: string[];
+  segmentLengths: number[];
+  isDelivering: boolean;
+  animationStep: number;
+  courierPos: { x: number; y: number };
+  onHouseClick: (id: string) => void;
+  onBack: () => void;
+  onUndo: () => void;
+  onReset: () => void;
+  onDeliver: () => void;
+  isDeliveryPaused: boolean;
+  onPauseDeliver: () => void;
+  onResumeDeliver: () => void;
+  deliverySpeed: number;
+  onChangeSpeed: (speed: number) => void;
+  currentMetrics: { distance: number; time: number; isValid: boolean };
+  onHelpClick?: () => void;
+  isSoundOn: boolean;
+  onToggleSound: () => void;
+  onPlayClick?: () => void;
+  playHouseClick: () => void;
+  playWaypointClick: () => void;
+  playDeliverSound: () => void;
+  playResetSound: () => void;
+  playUndoSound: () => void;
+  playMotor: () => void;
+  stopMotor: () => void;
+  isPaused?: boolean;
+}
+
+const BASE = import.meta.env.BASE_URL;
+const ASSETS = {
+  canvasBg: `${BASE}Background.webp`,
+  house:  `${BASE}house.png`,
+  store:  `${BASE}store.png`,
+  motorDiagKananAtas:  `${BASE}motor-kanan-atas.webp?v=2`,
+  motorDiagKananBawah: `${BASE}motor-kanan-bawah.webp?v=2`,
+  motorDiagKiriAtas:   `${BASE}motor-kiri-atas.webp?v=2`,
+  motorDiagKiriBawah:  `${BASE}motor-kiri-bawah.webp?v=2`,
+};
+
+interface Transform { x: number; y: number; scale: number; }
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 3.0;
+const INITIAL: Transform = { x: 0, y: 0, scale: 1 };
+
+export const MapCanvas: React.FC<MapCanvasProps> = ({
+  level, selectedRoute, segmentLengths, isDelivering, animationStep, courierPos, onHouseClick, onBack,
+  onUndo, onReset, onDeliver, isDeliveryPaused, onPauseDeliver, onResumeDeliver, deliverySpeed, onChangeSpeed, currentMetrics, onHelpClick,
+  isSoundOn, onToggleSound, onPlayClick,
+  playHouseClick, playWaypointClick, playDeliverSound, playResetSound, playUndoSound,
+  playMotor, stopMotor, isPaused,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [tf, setTf] = useState<Transform>(INITIAL);
+  const tfRef = useRef<Transform>(INITIAL);
+  const [isControlsExpanded, setIsControlsExpanded] = useState(true);
+  const [showRouteTimeline, setShowRouteTimeline] = useState(false);
+
+  const updateTf = useCallback((updater: (prev: Transform) => Transform) => {
+    setTf(prev => {
+      const next = updater(prev);
+      tfRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const dragRef = useRef({ active: false, startX: 0, startY: 0, originX: 0, originY: 0 });
+  const pinchRef = useRef({ active: false, dist: 0 });
+  const didDragRef = useRef(false);
+
+  const clampScale = (s: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
+
+  const getPinchDist = (touches: TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // ── Native listeners (non-passive) ───────────────────────────────────
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const onTouchStartNative = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        pinchRef.current = { active: true, dist: getPinchDist(e.touches) };
+        dragRef.current.active = false;
+      } else if (e.touches.length === 1) {
+        pinchRef.current.active = false;
+        dragRef.current = {
+          active: true,
+          startX: e.touches[0].clientX,
+          startY: e.touches[0].clientY,
+          originX: tfRef.current.x,
+          originY: tfRef.current.y,
+        };
+        didDragRef.current = false;
+      }
+    };
+
+    const onTouchMoveNative = (e: TouchEvent) => {
+      e.preventDefault();
+      if (e.touches.length === 2 && pinchRef.current.active) {
+        const newDist = getPinchDist(e.touches);
+        const ratio = newDist / pinchRef.current.dist;
+        pinchRef.current.dist = newDist;
+        const rect = el.getBoundingClientRect();
+        const midX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+        const midY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+        updateTf(prev => {
+          const newScale = clampScale(prev.scale * ratio);
+          const sc = newScale / prev.scale;
+          return { scale: newScale, x: midX - sc * (midX - prev.x), y: midY - sc * (midY - prev.y) };
+        });
+      } else if (e.touches.length === 1 && dragRef.current.active && !pinchRef.current.active) {
+        const dx = e.touches[0].clientX - dragRef.current.startX;
+        const dy = e.touches[0].clientY - dragRef.current.startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDragRef.current = true;
+        updateTf(() => ({ ...tfRef.current, x: dragRef.current.originX + dx, y: dragRef.current.originY + dy }));
+      }
+    };
+
+    const onTouchEndNative = (e: TouchEvent) => {
+      if (e.touches.length < 2) pinchRef.current.active = false;
+      if (e.touches.length === 0) dragRef.current.active = false;
+    };
+
+    const onWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      updateTf(prev => {
+        const newScale = clampScale(prev.scale * delta);
+        const sc = newScale / prev.scale;
+        return { scale: newScale, x: mx - sc * (mx - prev.x), y: my - sc * (my - prev.y) };
+      });
+    };
+
+    el.addEventListener('touchstart', onTouchStartNative, { passive: false });
+    el.addEventListener('touchmove', onTouchMoveNative, { passive: false });
+    el.addEventListener('touchend', onTouchEndNative, { passive: false });
+    el.addEventListener('wheel', onWheelNative, { passive: false });
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStartNative);
+      el.removeEventListener('touchmove', onTouchMoveNative);
+      el.removeEventListener('touchend', onTouchEndNative);
+      el.removeEventListener('wheel', onWheelNative);
+    };
+  }, [updateTf]);
+
+  useEffect(() => {
+    if (isDelivering && !isPaused) {
+      playMotor();
+    } else {
+      stopMotor();
+    }
+    return () => {
+      stopMotor();
+    };
+  }, [isDelivering, isPaused, playMotor, stopMotor]);
+
+  // ── Mouse drag (desktop) ─────────────────────────────────────────────
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType === 'touch') return; // handled by touch listeners
+    if (e.isPrimary) {
+      dragRef.current = {
+        active: true,
+        startX: e.clientX,
+        startY: e.clientY,
+        originX: tfRef.current.x,
+        originY: tfRef.current.y,
+      };
+      didDragRef.current = false;
+    }
+  }, []);
+
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType === 'touch') return;
+    if (!dragRef.current.active || !e.isPrimary) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDragRef.current = true;
+    updateTf(() => ({ ...tfRef.current, x: dragRef.current.originX + dx, y: dragRef.current.originY + dy }));
+  }, [updateTf]);
+
+  const onPointerUp = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType === 'touch') return;
+    dragRef.current.active = false;
+  }, []);
+
+  const handleNodeClick = useCallback((id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (didDragRef.current) return;
+
+    const clickedHouse = level.houses.find(h => h.id === id);
+    if (clickedHouse) {
+      if (clickedHouse.isWaypoint) {
+        playWaypointClick();
+      } else {
+        playHouseClick();
+      }
+    }
+
+    onHouseClick(id);
+  }, [didDragRef, level.houses, playWaypointClick, playHouseClick, onHouseClick]);
+
+  const resetView = () => {
+    tfRef.current = INITIAL;
+    setTf(INITIAL);
+  };
+
+  const getMotorAsset = () => {
+    if (!isDelivering || selectedRoute.length < 2) {
+      if (level.initialMotorImage) {
+        return `${BASE}${level.initialMotorImage}`;
+      }
+      return ASSETS.motorDiagKananAtas;
+    }
+    const fromId = selectedRoute[animationStep];
+    const toId   = selectedRoute[animationStep + 1];
+    const from   = level.houses.find(h => h.id === fromId);
+    const to     = level.houses.find(h => h.id === toId);
+    if (!from || !to) return ASSETS.motorDiagKananAtas;
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    if (dx >= 0 && dy <= 0) return ASSETS.motorDiagKananAtas;
+    if (dx >= 0 && dy > 0)  return ASSETS.motorDiagKananBawah;
+    if (dx < 0  && dy <= 0) return ASSETS.motorDiagKiriAtas;
+    return ASSETS.motorDiagKiriBawah;
+  };
+
+  const isConnectionActive = (from: string, to: string) => {
+    for (let i = 0; i < selectedRoute.length - 1; i++) {
+      const u = selectedRoute[i], v = selectedRoute[i + 1];
+      if ((u === from && v === to) || (u === to && v === from)) return true;
+    }
+    return false;
+  };
+
+  // Returns all 1-based step indices where nodeId is visited in selectedRoute
+  const getNodeSteps = useCallback((nodeId: string): number[] => {
+    const steps: number[] = [];
+    for (let i = 1; i < selectedRoute.length; i++) {
+      if (selectedRoute[i] === nodeId) {
+        steps.push(i);
+      }
+    }
+    return steps;
+  }, [selectedRoute]);
+
+  // Design per-step hitam putih: tanpa outline, padding kompak, dan ditumpuk jika multiple steps
+  // Angka terbesar berada di atas tumpukan
+  const renderStepBadge = (steps: number[], x: number, y: number, isSmall: boolean = false) => {
+    if (steps.length === 0) return null;
+    const baseR = isSmall ? 5.5 : 6.5;
+    const spacing = isSmall ? 9.5 : 11.5;
+    const totalH = (steps.length - 1) * spacing;
+    const startY = -totalH / 2;
+
+    // Urutkan angka terbesar di posisi paling atas (descending: index 0 = angka terbesar di cy paling atas)
+    const sortedSteps = [...steps].sort((a, b) => b - a);
+
+    // Untuk z-index layering yang sempurna (lingkaran atas menimpa lingkaran di bawahnya),
+    // kita gambar dari bawah ke atas (reverse render) sehingga lingkaran atas (angka terbesar) berada di layer paling atas
+    const items = sortedSteps.map((st, idx) => ({
+      st,
+      cy: startY + idx * spacing,
+      isTwoDigit: st >= 10,
+      r: st >= 10 ? baseR + 0.8 : baseR,
+    }));
+
+    return (
+      <g
+        transform={`translate(${x}, ${y})`}
+        className="pointer-events-none select-none animate-fade-in"
+      >
+        {items.slice().reverse().map(({ st, cy, isTwoDigit, r }, idx) => {
+          return (
+            <g key={idx} filter="url(#step-badge-shadow)">
+              <circle
+                cx="0"
+                cy={cy}
+                r={r}
+                fill="#ffffff"
+              />
+              <text
+                x="0"
+                y={cy}
+                textAnchor="middle"
+                dominantBaseline="central"
+                alignmentBaseline="central"
+                fontSize={isSmall ? (isTwoDigit ? "6" : "7.2") : (isTwoDigit ? "7" : "8.5")}
+                fontWeight="900"
+                fill="#000000"
+                style={{
+                  fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                }}
+              >
+                {st}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+    );
+  };
+
+  // Group segments between actual houses/store (filtering out waypoints) and sum their distances
+  const legs: { nodeId: string; distanceToNext?: number }[] = [];
+  if (selectedRoute.length > 0) {
+    let currentLegNode = selectedRoute[0];
+    let currentLegDistance = 0;
+
+    for (let i = 0; i < selectedRoute.length - 1; i++) {
+      const fromId = selectedRoute[i];
+      const toId = selectedRoute[i + 1];
+
+      const conn = level.connections.find(
+        (c) =>
+          ((c.from === fromId && c.to === toId) || (c.from === toId && c.to === fromId)) &&
+          !c.isBlockedByLevel
+      );
+      const dist = conn ? conn.distance : 0;
+      currentLegDistance += dist;
+
+      const nextHouse = level.houses.find((h) => h.id === toId);
+      if (nextHouse && !nextHouse.isWaypoint) {
+        legs.push({
+          nodeId: currentLegNode,
+          distanceToNext: currentLegDistance,
+        });
+        currentLegNode = toId;
+        currentLegDistance = 0;
+      }
+    }
+    legs.push({ nodeId: currentLegNode });
+  }
+
+  return (
+    <div id="arena-map-wrapper" className="relative w-full h-full overflow-hidden select-none" style={{ backgroundImage: `url(${ASSETS.canvasBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      {/* Top Left Header Actions Container */}
+      <div id="arena-header-left" className="absolute top-3 left-3 z-20 flex items-start gap-1.5 sm:gap-2">
+        {/* Back button */}
+        <button
+          id="arena-back-btn"
+          onClick={onBack}
+          className="bg-white/60 backdrop-blur-md border border-slate-200/80 rounded-lg p-2 md:p-2.5 shadow-sm hover:bg-white/85 active:scale-95 transition text-slate-600 cursor-pointer animate-fade-in flex items-center justify-center"
+          title="Kembali"
+        >
+          <ChevronLeft className="w-5 h-5 md:w-5.5 md:h-5.5" />
+        </button>
+
+        {/* Sound Toggle */}
+        <button
+          id="arena-sound-btn"
+          onClick={() => {
+            onPlayClick?.();
+            onToggleSound();
+          }}
+          className="bg-white/60 backdrop-blur-md border border-slate-200/80 rounded-lg p-2 md:p-2.5 shadow-sm hover:bg-white/85 active:scale-95 transition text-slate-600 cursor-pointer animate-fade-in flex items-center justify-center"
+          title={isSoundOn ? 'Matikan Suara' : 'Nyalakan Suara'}
+        >
+          {isSoundOn ? (
+            <Volume2 className="w-5 h-5 md:w-5.5 md:h-5.5 text-emerald-600" />
+          ) : (
+            <VolumeX className="w-5 h-5 md:w-5.5 md:h-5.5 text-slate-400" />
+          )}
+        </button>
+
+        {/* Help / Panduan Button (Button Tanda Seru) */}
+        <button
+          id="arena-help-btn"
+          onClick={() => {
+            onPlayClick?.();
+            onHelpClick?.();
+          }}
+          className="bg-white/60 backdrop-blur-md border border-slate-200/80 rounded-lg p-2 md:p-2.5 shadow-sm hover:bg-white/85 active:scale-95 transition text-amber-600 cursor-pointer animate-fade-in flex items-center justify-center"
+          title="Panduan Cara Bermain (Wajib Kembali ke Toko Roti)"
+        >
+          <AlertCircle className="w-5 h-5 md:w-5.5 md:h-5.5 text-amber-600" />
+        </button>
+      </div>
+
+      {/* Level Toast Badge - centered between left and right headers */}
+      <div id="arena-level-toast-container" className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20 pointer-events-none animate-fade-in">
+        <img
+          id="arena-level-toast-img"
+          src={`${BASE}level-${level.id}-toast.webp`}
+          alt={`Level ${level.id}`}
+          className="h-12 sm:h-14 md:h-16 lg:h-20 2xl:h-24 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]"
+          draggable={false}
+        />
+      </div>
+
+      {/* Top Right Header Actions Container */}
+      <div id="arena-header-right" className="absolute top-3 right-3 z-20 flex items-center gap-1.5 sm:gap-2">
+        {/* Route panel button */}
+        <button
+          id="arena-toggle-route-btn"
+          onClick={() => {
+            onPlayClick?.();
+            setShowRouteTimeline(prev => !prev);
+          }}
+          className={`bg-white/60 backdrop-blur-md border rounded-lg px-3 py-2 sm:px-3.5 md:py-2.5 text-[10px] sm:text-[11px] md:text-xs font-semibold shadow-sm hover:bg-white/85 active:scale-95 transition flex items-center gap-1 font-display tracking-wider whitespace-nowrap ${
+            showRouteTimeline
+              ? 'border-indigo-500 text-indigo-700 bg-indigo-50/45'
+              : 'border-slate-200/80 text-slate-600'
+          }`}
+        >
+          📋 Rute
+        </button>
+
+        {/* Reset button */}
+        <button
+          id="arena-reset-view-btn"
+          onClick={() => {
+            onPlayClick?.();
+            resetView();
+          }}
+          className="bg-white/60 backdrop-blur-md border border-slate-200/80 rounded-lg px-3 py-2 sm:px-3.5 md:py-2.5 text-[10px] sm:text-[11px] md:text-xs font-semibold text-slate-600 shadow-sm hover:bg-white/85 active:scale-95 transition font-display tracking-wider whitespace-nowrap"
+        >
+          ⟳ Tampilan Awal
+        </button>
+      </div>
+
+      {/* Route Timeline Floating Panel */}
+      {showRouteTimeline && (
+        <div id="arena-route-timeline-panel" className="absolute top-14 left-3 right-3 sm:left-auto sm:right-3 z-20 w-[calc(100%-24px)] sm:w-80 max-h-[60vh] bg-white/75 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col gap-2.5 overflow-hidden animate-fade-in">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2 shrink-0">
+            <h4 className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5 font-display">
+              <span>📋 Alur Perjalanan ({legs.length > 0 ? legs.length - 1 : 0} Kunjungan)</span>
+            </h4>
+            <button
+              id="arena-close-route-timeline-btn"
+              onClick={() => setShowRouteTimeline(false)}
+              className="text-slate-400 hover:text-slate-600 transition text-[8.5px] md:text-[11px] font-bold font-display"
+            >
+              Tutup
+            </button>
+          </div>
+
+          {/* Live Metrics inside panel */}
+          <div className="bg-slate-50/45 backdrop-blur-xs p-2 sm:p-2.5 rounded-xl border border-slate-200 shrink-0">
+            <div className="flex flex-col">
+              <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase">Jarak Tempuh</span>
+              <span className="text-[10.5px] md:text-xs font-extrabold text-slate-700 font-mono mt-0.5">{formatDistance(currentMetrics.distance)}</span>
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto pr-1 min-h-0">
+            {legs.length <= 1 ? (
+              <p className="text-[10px] md:text-xs text-slate-400 text-center py-4">
+                Belum ada rute pengiriman. Klik rumah atau toko di peta untuk mulai menyusun rute.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-2 py-0.5">
+                {legs.map((leg, index) => {
+                  const isToko = leg.nodeId === 'Toko';
+                  const isLast = index === legs.length - 1;
+                  return (
+                    <div key={index} className="relative flex items-start gap-2 sm:gap-3 pl-1">
+                      {/* Vertical Timeline Line */}
+                      {!isLast && (
+                        <span className="absolute left-[11px] sm:left-[13px] top-[20px] sm:top-[24px] bottom-[-18px] sm:bottom-[-20px] w-[1.5px] bg-slate-200" />
+                      )}
+
+                      {/* Number Bullet */}
+                      <div className={`w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rounded-full shrink-0 flex items-center justify-center text-[9px] md:text-[10px] font-black border z-10 font-display backdrop-blur-xs ${
+                        isToko
+                          ? 'bg-amber-100/50 border-amber-300/50 text-amber-800'
+                          : 'bg-indigo-50/50 border-indigo-200/50 text-indigo-800'
+                      }`}>
+                        {isToko ? '🥖' : index}
+                      </div>
+
+                      {/* Step Content */}
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[9.5px] md:text-[11px] font-bold text-slate-800 truncate">
+                            {isToko ? 'Toko Roti' : `Rumah ${leg.nodeId}`}
+                          </span>
+                          {leg.distanceToNext !== undefined && leg.distanceToNext > 0 && (
+                            <span className="text-[8px] md:text-[9px] font-extrabold text-indigo-600 bg-indigo-50/45 backdrop-blur-xs border border-indigo-100/60 px-1 sm:px-1.5 py-0.5 rounded-md shrink-0 font-mono">
+                              {formatDistance(leg.distanceToNext)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Pan/zoom container */}
+      <div
+        ref={containerRef}
+        className="absolute inset-0 overflow-hidden"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerLeave={onPointerUp}
+      >
+        <div
+          style={{
+            transform: `translate(${tf.x}px, ${tf.y}px) scale(${tf.scale})`,
+            transformOrigin: '0 0',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <svg
+            viewBox={level.viewBox ?? '0 0 800 500'}
+            preserveAspectRatio="xMidYMid meet"
+            className="w-full h-full"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              shapeRendering: 'geometricPrecision',
+              textRendering: 'geometricPrecision',
+              imageRendering: '-webkit-optimize-contrast',
+            }}
+          >
+            <defs>
+              <pattern id="map-dots" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="1.2" fill="#cbd5e1" />
+              </pattern>
+              <pattern id="caution-stripes" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="10" height="20" fill="#ef4444" />
+                <rect x="10" width="10" height="20" fill="#facc15" />
+              </pattern>
+              <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#00000033" />
+              </filter>
+              <filter id="step-badge-shadow" x="-40%" y="-40%" width="180%" height="180%">
+                <feDropShadow dx="0" dy="1.2" stdDeviation="1.5" floodColor="#00000045" />
+              </filter>
+            </defs>
+
+            <style>
+              {`
+                @keyframes markerBounce {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-8px); }
+                }
+                .animate-marker-bounce {
+                  animation: markerBounce 0.8s infinite ease-in-out;
+                }
+                @keyframes radarPing {
+                  0% { transform: scale(0.25); opacity: 0.95; }
+                  100% { transform: scale(1.6); opacity: 0; }
+                }
+                .animate-radar-ping {
+                  animation: radarPing 0.8s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+                  transform-origin: 0px 0px;
+                }
+              `}
+            </style>
+
+            {level.mapImage && (
+              <image
+                href={`${BASE}${level.mapImage}`}
+                x="0" y="0"
+                width="100%" height="100%"
+                preserveAspectRatio="xMidYMid meet"
+                style={{
+                  imageRendering: '-webkit-optimize-contrast',
+                }}
+              />
+            )}
+
+            {/* ── ROADS ── */}
+            {level.connections.map((conn) => {
+              const from = level.houses.find(h => h.id === conn.from);
+              const to   = level.houses.find(h => h.id === conn.to);
+              if (!from || !to) return null;
+              const active    = isConnectionActive(conn.from, conn.to);
+              const isBlocked = !!conn.isBlockedByLevel;
+              const midX = (from.x + to.x) / 2;
+              const midY = (from.y + to.y) / 2;
+              const lx = conn.labelOffset?.x ?? 0;
+              const ly = conn.labelOffset?.y ?? 0;
+              return (
+                <g key={conn.id}>
+                  {!level.hideConnectionLines && (
+                    <>
+                      <line x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+                        stroke={isBlocked ? '#fecaca' : 'transparent'}
+                        strokeWidth={isBlocked ? 10 : 9}
+                        strokeLinecap="round" className="transition-all duration-300"
+                      />
+                      <line x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+                        stroke={isBlocked ? 'url(#caution-stripes)' : '#ffffff'}
+                        strokeWidth={isBlocked ? 6 : 3.5}
+                        strokeDasharray="6,6"
+                        strokeLinecap="round" className="transition-all duration-300"
+                      />
+                    </>
+                  )}
+                  <g transform={`translate(${midX + lx},${midY + ly})`}>
+                    <rect x="-13" y="-8" width="26" height="14" rx="4"
+                      fill={isBlocked ? '#fef2f2' : active ? '#fef3c7' : 'white'}
+                      stroke={isBlocked ? '#ef4444' : active ? '#f59e0b' : '#cbd5e1'}
+                      strokeWidth="1.2"
+                    />
+                    <text y="2.5" textAnchor="middle" fontSize={conn.fontSize ?? 8} fontWeight="bold" fill="#334155">
+                      {conn.distance}m
+                    </text>
+                  </g>
+                  {isBlocked && (
+                    <g transform={`translate(${midX},${midY - 24})`}>
+                      <rect x="-13" y="-9" width="26" height="16" rx="4" fill="#ef4444" />
+                      <text y="4" textAnchor="middle" fontSize="11">🚧</text>
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* ── WAYPOINTS ── */}
+            {level.houses.filter(h => h.isWaypoint).map((house) => {
+              const isInRoute = selectedRoute.includes(house.id);
+              const isLatest = selectedRoute[selectedRoute.length - 1] === house.id && !isDelivering;
+              const steps = getNodeSteps(house.id);
+              const firstStep = steps[0];
+              const extraSteps = steps.slice(1);
+
+              // Priority: per-waypoint → level default → hardcoded
+              const hw = house.waypointColors;
+              const lw = level.defaultWaypointColors;
+              const colors = isLatest
+                ? {
+                    fill:   hw?.latest?.fill   ?? lw?.latest?.fill   ?? '#6366f1',
+                    stroke: hw?.latest?.stroke ?? lw?.latest?.stroke ?? '#4338ca',
+                    text:   hw?.latest?.text   ?? lw?.latest?.text   ?? '#ffffff',
+                    glow:   hw?.latest?.glow   ?? lw?.latest?.glow   ?? '#818cf8',
+                  }
+                : isInRoute
+                ? {
+                    fill:   hw?.visited?.fill   ?? lw?.visited?.fill   ?? '#10b981',
+                    stroke: hw?.visited?.stroke ?? lw?.visited?.stroke ?? '#059669',
+                    text:   hw?.visited?.text   ?? lw?.visited?.text   ?? '#ffffff',
+                    glow:   '',
+                  }
+                : {
+                    fill:   hw?.inactive?.fill   ?? lw?.inactive?.fill   ?? '#ffffff',
+                    stroke: hw?.inactive?.stroke ?? lw?.inactive?.stroke ?? '#64748b',
+                    text:   hw?.inactive?.text   ?? lw?.inactive?.text   ?? '#475569',
+                    glow:   '',
+                  };
+
+              return (
+                <g
+                  key={house.id}
+                  transform={`translate(${house.x},${house.y})`}
+                  onClick={(e) => handleNodeClick(house.id, e)}
+                  style={{ cursor: 'pointer' }}
+                  filter="url(#node-shadow)"
+                >
+                  <circle r={22} fill="transparent" pointerEvents="all" cx="0" cy="0" style={{ cursor: 'pointer' }} />
+
+                  {/* Pulsing glow ring — only on the latest waypoint */}
+                  {isLatest && (
+                    <>
+                      <circle cx="0" cy="0" r="14" fill="none" stroke={colors.glow} strokeWidth="2" opacity="0.35" className="animate-ping" style={{ animationDuration: '2.5s' }} />
+                      <circle cx="0" cy="0" r="11" fill={colors.fill} opacity="0.12" />
+                    </>
+                  )}
+
+                  <circle
+                    cx="0" cy="0"
+                    r={isLatest ? 9.5 : 8}
+                    fill={colors.fill}
+                    stroke={colors.stroke}
+                    strokeWidth={isLatest ? 2.2 : 1.8}
+                    style={{ transition: 'all 0.3s ease' }}
+                  />
+
+                  {/* First step label inside the waypoint circle — empty by default */}
+                  {firstStep !== undefined && (
+                    <text
+                      x="0"
+                      y="0"
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      alignmentBaseline="central"
+                      fontSize={firstStep >= 10 ? "7.5" : "8.5"}
+                      fontWeight="900"
+                      fill={colors.text}
+                      style={{
+                        fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      }}
+                    >
+                      {firstStep}
+                    </text>
+                  )}
+
+                  {/* Black & White Step Badge for repeated visits (step 2+) */}
+                  {extraSteps.length > 0 && renderStepBadge(extraSteps, 8, -8, true)}
+                </g>
+              );
+            })}
+
+            {/* ── HOUSE CENTER DOTS ── */}
+            {level.houses.filter(h => !h.isWaypoint && h.id !== 'Toko').map((house) => {
+              const isInRoute = selectedRoute.includes(house.id);
+              return (
+                <g key={`dot-${house.id}`} transform={`translate(${house.x},${house.y})`}>
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r="4.5"
+                    fill={isInRoute ? '#10b981' : '#ffffff'}
+                    stroke={isInRoute ? '#059669' : '#64748b'}
+                    strokeWidth="2.5"
+                  />
+                </g>
+              );
+            })}
+
+            {/* ── COURIER ── */}
+            {(() => {
+              const mSize = level.motorSize ?? 48;
+              const mHalf = mSize / 2;
+              return (
+                <g transform={`translate(${courierPos.x},${courierPos.y})`}
+                  style={{ transition: 'transform 50ms linear' }}>
+
+                  <image
+                    href={getMotorAsset()}
+                    x={-mHalf} y={-mHalf}
+                    width={mSize} height={mSize}
+                    preserveAspectRatio="xMidYMid meet"
+                    style={{ pointerEvents: 'none', imageRendering: '-webkit-optimize-contrast' }}
+                  />
+                </g>
+              );
+            })()}
+
+            {/* ── HOUSES & TOKO ── */}
+            {level.houses.filter(h => !h.isWaypoint).map((house) => {
+              const isToko    = house.id === 'Toko';
+              const isInRoute = selectedRoute.includes(house.id);
+              const isLatest  = selectedRoute[selectedRoute.length - 1] === house.id;
+              const mSize     = house.markerSize ?? 48;
+              const mHalf     = mSize / 2;
+              const ox        = house.markerOffset?.x ?? 0;
+              const oy        = house.markerOffset?.y ?? 0;
+              const rox       = house.radarOffset?.x ?? 0;
+              const roy       = house.radarOffset?.y ?? 0;
+
+              const originalIndex = level.houses.findIndex(h => h.id === house.id);
+              const getMarkerSrc = () => {
+                if (isToko) return `${BASE}point-roti.webp`;
+                if (house.markerImage) return house.markerImage;
+                const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+                const letter = letters[originalIndex - 1] || 'a';
+                return `${BASE}point-${letter}.webp`;
+              };
+
+              const markerSrc = getMarkerSrc();
+              return (
+                <g key={house.id} transform={`translate(${house.x},${house.y})`} onClick={(e) => handleNodeClick(house.id, e)} style={{ cursor: 'pointer' }} filter="url(#node-shadow)">
+                  <circle r={isToko ? 45 : 30} fill="transparent" pointerEvents="all" cx={ox} cy={isToko ? oy + 18 : oy} style={{ cursor: 'pointer' }} />
+                  <g className={isLatest && !isDelivering ? 'animate-marker-bounce' : ''}>
+                    {isLatest && !isDelivering && (
+                      <g transform={`translate(${ox + rox},${oy + roy})`}>
+                        <circle
+                          cx="0"
+                          cy="0"
+                          r={isToko ? 36 : mHalf + 10}
+                          fill="none"
+                          stroke={house.radarColor ?? '#10b981'}
+                          strokeWidth="2.5"
+                          className="animate-radar-ping"
+                        />
+                      </g>
+                    )}
+                    <image href={markerSrc} x={-mHalf + ox} y={-mHalf + oy} width={mSize} height={mSize} preserveAspectRatio="xMidYMid meet" style={{ pointerEvents: 'auto', opacity: 1.0, filter: 'none', transition: 'all 0.3s ease', imageRendering: '-webkit-optimize-contrast' }} />
+                    {/* Black & White Step Badge for Houses and Toko */}
+                    {(() => {
+                      const steps = getNodeSteps(house.id);
+                      if (steps.length === 0) return null;
+                      return renderStepBadge(steps, ox + mHalf - 3, oy - mHalf + 3, false);
+                    })()}
+                  </g>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      </div>
+
+      {/* Soal Badge - mobile: above-right of bottom controls, desktop: right of centered controls */}
+      <div id="arena-soal-container" className="absolute z-20 bottom-16 right-3 lg:bottom-3 pointer-events-none animate-fade-in">
+        <img
+          id="arena-soal-img"
+          src={`${BASE}soal-${level.id}.webp`}
+          alt={`Soal Level ${level.id}`}
+          className="h-16 md:h-auto sm:max-w-[180px] lg:max-w-[220px] 2xl:max-w-[450px] w-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.2)] rounded-lg"
+          draggable={false}
+        />
+      </div>
+
+      {/* Floating Controls Overlay at the bottom */}
+      {isControlsExpanded ? (
+        <div id="arena-bottom-controls" className="absolute bottom-3 left-3 right-3 z-20 lg:left-1/2 lg:-translate-x-1/2 lg:max-w-xl lg:bg-white/50 lg:backdrop-blur-md lg:border border-slate-200/80 rounded-xl lg:p-2.5 lg:shadow-lg flex items-center justify-between gap-2 sm:gap-3 transition-all animate-fade-in">
+          {/* Speed selection */}
+          <div id="arena-speed-controls" className="flex items-center gap-0.5 sm:gap-1 bg-slate-100/40 backdrop-blur-xs p-0.5 rounded-lg sm:rounded-xl border border-slate-200/65 shrink-0">
+            {[1, 2, 3].map((s) => (
+              <button
+                key={s}
+                id={`arena-speed-btn-${s}x`}
+                type="button"
+                onClick={() => {
+                  onPlayClick?.();
+                  onChangeSpeed(s);
+                }}
+                className={`py-1 sm:py-1.5 px-2 sm:px-3 rounded-md sm:rounded-lg text-[8.5px] md:text-[11px] font-bold transition-all font-display ${
+                  deliverySpeed === s
+                    ? 'bg-[#0083C1] text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-200/60 active:scale-95'
+                }`}
+              >
+                {s}x
+              </button>
+            ))}
+          </div>
+
+          {/* Actions group */}
+          <div id="arena-actions-group" className="flex items-center gap-1 sm:gap-1.5 font-display tracking-wider bg-white/50 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none border lg:border-none border-slate-200/80 rounded-xl shadow-sm lg:shadow-none">
+            <button
+              id="arena-undo-btn"
+              onClick={() => {
+                playUndoSound();
+                onUndo();
+              }}
+              disabled={selectedRoute.length <= 1 || isDelivering}
+              className="py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-lg sm:rounded-xl font-bold text-[8.5px] md:text-[11px] text-slate-700 bg-slate-100/50 backdrop-blur-xs hover:bg-slate-200/70 border border-slate-300/80 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition flex items-center justify-center gap-1 font-display"
+            >
+              <SkipBack className="w-3.5 h-3.5 text-slate-600" />
+              <span className="hidden sm:inline">Hapus Terakhir</span>
+            </button>
+
+            <button
+              id="arena-reset-btn"
+              onClick={() => {
+                playResetSound();
+                onReset();
+              }}
+              disabled={selectedRoute.length <= 1 || isDelivering}
+              className="py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-lg sm:rounded-xl font-bold text-[8.5px] md:text-[11px] text-slate-700 bg-slate-100/50 backdrop-blur-xs hover:bg-slate-200/70 border border-slate-300/80 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition flex items-center justify-center gap-1 font-display"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
+              <span className="hidden sm:inline">Ulangi</span>
+            </button>
+
+            {isDelivering ? (
+              isDeliveryPaused ? (
+                <button
+                  id="arena-resume-deliver-btn"
+                  onClick={() => {
+                    playDeliverSound();
+                    onResumeDeliver();
+                  }}
+                  className="py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg sm:rounded-xl font-bold text-[8.5px] md:text-[11px] text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/10 font-display"
+                >
+                  <Play className="w-3.5 h-3.5 text-white" />
+                  Lanjutkan
+                </button>
+              ) : (
+                <button
+                  id="arena-pause-deliver-btn"
+                  onClick={() => {
+                    playUndoSound();
+                    onPauseDeliver();
+                  }}
+                  className="py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg sm:rounded-xl font-bold text-[8.5px] md:text-[11px] text-white bg-rose-600 hover:bg-rose-700 active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-rose-600/10 font-display"
+                >
+                  <Pause className="w-3.5 h-3.5 text-white" />
+                  Berhenti
+                </button>
+              )
+            ) : (
+              <button
+                id="arena-deliver-btn"
+                onClick={() => {
+                  playDeliverSound();
+                  onDeliver();
+                }}
+                disabled={selectedRoute.length <= 1}
+                className="py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg sm:rounded-xl font-bold text-[8.5px] md:text-[11px] text-white bg-[#FC8C00] backdrop-blur-xs hover:bg-amber-600 active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-amber-600/10 disabled:opacity-50 disabled:pointer-events-none font-display"
+              >
+                <Truck className="w-3.5 h-3.5 text-white" />
+                Berangkat
+              </button>
+            )}
+
+            {/* Collapse button */}
+            <button
+              id="arena-collapse-controls-btn"
+              onClick={() => {
+                onPlayClick?.();
+                setIsControlsExpanded(false);
+              }}
+              className="py-1.5 sm:py-2 px-1.5 sm:px-2.5 rounded-lg sm:rounded-xl font-bold text-xs text-slate-600 bg-slate-100/50 backdrop-blur-xs hover:bg-slate-200/70 border border-slate-300/80 active:scale-95 transition flex items-center justify-center gap-1"
+              title="Sembunyikan"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          id="arena-expand-controls-btn"
+          onClick={() => {
+            onPlayClick?.();
+            setIsControlsExpanded(true);
+          }}
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 bg-white/70 backdrop-blur-md border border-slate-200/80 rounded-lg sm:rounded-xl px-1.5 md:px-2.5 py-1.5 md:py-2.5 shadow-lg hover:bg-white/85 active:scale-95 transition text-slate-700 font-bold text-[8.5px] md:text-[11px] flex items-center gap-1.5 animate-fade-in font-display tracking-wider"
+        >
+          <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 animate-bounce" style={{ animationDuration: '1s' }} />
+          <span>Tampilkan Kontrol</span>
+        </button>
+      )}
+    </div>
+  );
+};

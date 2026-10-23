@@ -1,0 +1,67 @@
+export interface WaypointStateColors {
+  fill?: string;
+  stroke?: string;
+  text?: string;
+  glow?: string; // hanya dipakai untuk state 'latest'
+}
+
+export interface WaypointColors {
+  inactive?: WaypointStateColors;
+  visited?:  WaypointStateColors;
+  latest?:   WaypointStateColors;
+}
+
+export interface House {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  color?: string;
+  isWaypoint?: boolean; // titik belok, tidak perlu diklik user
+  labelOffset?: { x?: number; y?: number }; // custom posisi label
+  markerImage?: string; // path gambar marker custom (misal '/point-a.webp'), mengganti circle+icon default
+  markerSize?: number;  // ukuran marker custom (default 48)
+  markerOffset?: { x?: number; y?: number }; // offset posisi marker image dari center
+  radarOffset?: { x?: number; y?: number };  // offset posisi radar dari center marker
+  radarColor?: string; // warna radar ping (default '#10b981')
+  hideIcon?: boolean;   // sembunyikan icon emoji (🏠/🥖) di node
+  waypointColors?: WaypointColors; // override per-waypoint, prioritas tertinggi
+  deliveryVideo?: string; // custom video asset path untuk pengantaran ke rumah ini
+}
+
+export interface Connection {
+  id: string;
+  from: string;
+  to: string;
+  distance: number;
+  isBlockedByLevel?: boolean;
+  dashed?: boolean;
+  waypoints?: string[]; // node perantara yang otomatis diinsert saat klik to
+  labelOffset?: { x?: number; y?: number };
+  fontSize?: number;
+}
+
+export interface LevelConfig {
+  id: number;
+  title: string;
+  viewBox?: string;
+  linear?: boolean;
+  hideConnectionLines?: boolean;
+  mapImage?: string;
+  houses: House[];
+  connections: Connection[];
+  description: string;
+  hints: string;
+  timeLimitMinutes?: number; // Level 5 time constraint
+  startTimeString?: string; // e.g., '07:00'
+  motorSize?: number; // ukuran sprite motor kurir (default 48)
+  initialMotorImage?: string; // override default motor image when idle at start
+  defaultWaypointColors?: WaypointColors; // default warna waypoint untuk seluruh level
+  deliveryVideo?: string; // custom default video asset path untuk level ini
+  ctExplanation: {
+    decomposition: string;
+    patternRecognition: string;
+    abstraction: string;
+    algorithm: string;
+  };
+}
