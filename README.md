@@ -29,9 +29,9 @@ npm install
 ```bash
 npm run dev
 ```
-Buka di browser: **http://localhost:3000/rute-kurir-roti-pintar/**
+Buka di browser: **http://localhost:3000/aigensee-rute-kurir-roti-pintar/**
 
-> Base path project: `/rute-kurir-roti-pintar/` (lihat `vite.config.ts`).
+> Base path project: `/aigensee-rute-kurir-roti-pintar/` (lihat `vite.config.ts`).
 
 ### 4. Build untuk produksi
 ```bash
@@ -44,7 +44,7 @@ Hasil build ada di folder `dist/`.
 npm run preview
 ```
 Lalu buka URL yang muncul di terminal, biasanya:
-**http://localhost:4173/rute-kurir-roti-pintar/**
+**http://localhost:4173/aigensee-rute-kurir-roti-pintar/**
 
 ### ⚠️ Jangan buka `dist/index.html` dengan drag-and-drop ke browser
 Membuka file lewat protokol `file://` akan gagal (CORS / asset tidak termuat). Selalu sajikan `dist/` lewat HTTP, misalnya `npm run preview`, atau deploy ke hosting web.
