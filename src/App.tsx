@@ -10,7 +10,11 @@ type Page = 'splash' | 'dashboard' | 'arena';
 export default function App() {
   const [page, setPage] = useState<Page>('splash');
   const [selectedLevelId, setSelectedLevelId] = useState(1);
-  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(false);
+  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(() => {
+    const isFullscreenSupported = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen;
+    const isCurrentlyFullscreen = typeof document !== 'undefined' && !!document.fullscreenElement;
+    return isFullscreenSupported && !isCurrentlyFullscreen;
+  });
   const [unlockedLevel, setUnlockedLevel] = useState<number>(() => {
     try {
       const saved = localStorage.getItem('kurir_roti_unlocked_level');
@@ -60,13 +64,7 @@ export default function App() {
 
   const handleStartFromSplash = () => {
     playClick();
-    const isFullscreenSupported = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen;
-    const isCurrentlyFullscreen = typeof document !== 'undefined' && !!document.fullscreenElement;
-    if (isFullscreenSupported && !isCurrentlyFullscreen) {
-      setShowFullscreenPrompt(true);
-    } else {
-      setPage('dashboard');
-    }
+    setPage('dashboard');
   };
 
   const enterFullscreen = async () => {
@@ -78,7 +76,6 @@ export default function App() {
       console.warn("Fullscreen permission denied or not supported by browser", err);
     }
     setShowFullscreenPrompt(false);
-    setPage('dashboard');
   };
 
   const handleSelectLevel = (id: number) => {
@@ -89,7 +86,7 @@ export default function App() {
 
   return (
     <>
-      {/* Mode Layar Penuh Modal - Colors exactly matching Splash page (#0f5a31 green border, #037DC2 blue button) */}
+      {/* Mode Layar Penuh Modal - tampil pertama kali saat app dibuka, sebelum Splash page. Colors exactly matching Splash page (#0f5a31 green border, #037DC2 blue button) */}
       {showFullscreenPrompt && (
         <div id="fullscreen-prompt-modal" className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 select-none animate-fadeIn">
           <div id="fullscreen-prompt-card" className="relative max-w-sm w-full mx-auto bg-white border-[3px] border-[#0f5a31] shadow-2xl rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center">
@@ -124,7 +121,6 @@ export default function App() {
                 onClick={() => {
                   playClick();
                   setShowFullscreenPrompt(false);
-                  setPage('dashboard');
                 }}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-black py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer uppercase tracking-wide font-display text-xs"
               >
