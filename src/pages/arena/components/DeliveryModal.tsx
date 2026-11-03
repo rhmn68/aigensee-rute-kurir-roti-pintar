@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { PackageCheck, Sparkles, ArrowRight } from 'lucide-react';
+import { PackageCheck, Sparkles, ArrowRight, Croissant } from 'lucide-react';
 
 export interface DeliveryInfo {
   houseId: string;
@@ -121,7 +121,7 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
         <div className="flex items-center justify-between gap-2 border-b border-amber-100 pb-2.5">
           <div className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-full bg-amber-100/90 text-amber-800 flex items-center justify-center text-base shadow-xs shrink-0">
-              🥖
+              <Croissant className="w-5 h-5" aria-hidden="true" />
             </span>
             <div>
               <div className="flex items-center gap-1.5">
@@ -165,7 +165,7 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
 
               <div className="relative flex items-center justify-center mb-3">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white shadow-md flex items-center justify-center border border-amber-200 relative animate-bounce" style={{ animationDuration: '1.2s' }}>
-                  <span className="text-3xl sm:text-4xl filter drop-shadow-sm">🥖</span>
+                  <Croissant className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-sm" aria-hidden="true" />
                   <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1 rounded-full shadow-xs">
                     <PackageCheck className="w-3.5 h-3.5" />
                   </div>
@@ -176,7 +176,7 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
                 Kurir sedang menyerahkan pesanan
               </p>
               <p className="text-[10px] sm:text-xs text-slate-500 font-medium max-w-xs mt-0.5">
-                Roti hangat sukses diterima warga di {delivery.houseName}! ✨
+                Roti hangat sukses diterima warga di {delivery.houseName}!
               </p>
             </div>
           )}

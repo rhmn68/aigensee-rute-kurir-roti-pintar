@@ -83,7 +83,7 @@ const getSlides = (accentText: string): Slide[] => [
     title: 'KIRIM KURIR :',
     tips: [
       <><strong className={`${accentText} font-extrabold`}>Kurir roti</strong> akan otomatis berjalan melintasi rute yang kamu susun dan sistem akan menghitung <strong className={`${accentText} font-extrabold`}>jarak total</strong> perjalananmu.</>,
-      <><strong className="text-rose-600 font-extrabold">⚠️ ATURAN WAJIB:</strong> Pada setiap level, kurir <strong className={`${accentText} font-extrabold`}>wajib kembali ke Toko Roti</strong> setelah mengantarkan pesanan ke seluruh rumah warga agar misi berhasil!</>,
+      <><strong className="text-rose-600 font-extrabold"> ATURAN WAJIB:</strong> Pada setiap level, kurir <strong className={`${accentText} font-extrabold`}>wajib kembali ke Toko Roti</strong> setelah mengantarkan pesanan ke seluruh rumah warga agar misi berhasil!</>,
       <>Cobalah <strong className={`${accentText} font-extrabold`}>berbagai kombinasi rute</strong> untuk mencari jalur yang paling efisien!</>,
     ],
   },

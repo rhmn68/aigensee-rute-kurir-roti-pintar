@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { RefreshCcw, ArrowRight, X } from 'lucide-react';
+import { RefreshCcw, ArrowRight, X, Trophy } from 'lucide-react';
 import { formatDistance } from '@utils/findOptimalRoute';
 
 interface ResultModalProps {
@@ -97,7 +97,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
 
           {/* Trophy element with debounce bounce-jump animation */}
           <div id="result-modal-trophy" className="flex items-center justify-center mb-1.5 sm:mb-2 text-4xl sm:text-5xl select-none animate-bounce-jump">
-            🏆
+            <Trophy className="w-10 h-10 sm:w-12 sm:h-12" aria-hidden="true" />
           </div>
 
           <h3 id="result-modal-title" className="text-base sm:text-xl font-bold font-display tracking-wide drop-shadow-xs">

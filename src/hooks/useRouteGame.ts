@@ -106,7 +106,7 @@ export function useRouteGame(level: LevelConfig) {
     };
 
     if (lastNode === 'Toko' && selectedRoute.length > 1) {
-      setErrorToast('🔒 Rute sudah ditutup kembali ke Toko Roti. Silakan klik "Berangkat" atau "Ulangi"!');
+      setErrorToast('Rute sudah ditutup kembali ke Toko Roti. Silakan klik "Berangkat" atau "Ulangi"!');
       setTimeout(() => setErrorToast(null), 3000);
       return;
     }
@@ -118,7 +118,7 @@ export function useRouteGame(level: LevelConfig) {
       const targetHouse = level.houses.find(h => h.id === houseId);
       const lastDisplayName = lastHouse?.isWaypoint ? lastHouse.name : lastNode === 'Toko' ? 'Toko Roti' : `Rumah ${lastNode}`;
       const targetDisplayName = targetHouse?.isWaypoint ? targetHouse.name : houseId === 'Toko' ? 'Toko Roti' : `Rumah ${houseId}`;
-      setErrorToast(`❌ Tidak ada jalan dari ${lastDisplayName} ke ${targetDisplayName}! Silakan ikuti jalur bergaris.`);
+      setErrorToast(`Tidak ada jalan dari ${lastDisplayName} ke ${targetDisplayName}! Silakan ikuti jalur bergaris.`);
       setTimeout(() => setErrorToast(null), 3000);
       return;
     }
@@ -236,19 +236,19 @@ export function useRouteGame(level: LevelConfig) {
 
   const handleDeliver = () => {
     if (selectedRoute.length < 2) {
-      setErrorToast('⚠️ Tentukan rutenya terlebih dahulu dengan mengeklik rumah!');
+      setErrorToast('Tentukan rutenya terlebih dahulu dengan mengeklik rumah!');
       setTimeout(() => setErrorToast(null), 3000);
       return;
     }
 
     if (selectedRoute[selectedRoute.length - 1] !== 'Toko') {
-      setErrorToast('🥖 Pada setiap level, kurir wajib kembali ke Toko Roti setelah mengantarkan seluruh pesanan!');
+      setErrorToast('Pada setiap level, kurir wajib kembali ke Toko Roti setelah mengantarkan seluruh pesanan!');
       setTimeout(() => setErrorToast(null), 3500);
       return;
     }
 
     if (!visitsAllHouses(selectedRoute, level)) {
-      setErrorToast('🏠 Masih ada warga yang belum menerima kiriman roti. Kunjungi seluruh rumah!');
+      setErrorToast('Masih ada warga yang belum menerima kiriman roti. Kunjungi seluruh rumah!');
       setTimeout(() => setErrorToast(null), 3500);
       return;
     }

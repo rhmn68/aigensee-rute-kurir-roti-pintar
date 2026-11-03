@@ -74,7 +74,7 @@ export const DistanceCalculator: React.FC<DistanceCalculatorProps> = ({
             {!isCompletedRoute ? (
               <span className="text-slate-400">Hubungkan semua rumah untuk mengukur selisih.</span>
             ) : isOptimal ? (
-              <span className="text-emerald-700 font-semibold">Selamat! Anda menemukan rute terpendek yang sempurna! 🌟</span>
+              <span className="text-emerald-700 font-semibold">Selamat! Anda menemukan rute terpendek yang sempurna!</span>
             ) : (
               <span className="text-slate-600 font-medium">Bisa dihemat {formatDistance(diff)} lagi. Coba atur urutan rutenya!</span>
             )}
@@ -87,7 +87,7 @@ export const DistanceCalculator: React.FC<DistanceCalculatorProps> = ({
         <div className="mt-5 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
           <div className="flex justify-between text-xs font-semibold text-slate-600 mb-2">
             <span>Efisiensi Rute</span>
-            <span>{isOptimal ? '100% Sempurna⭐' : diff <= 2 ? '85% Sangat Baik' : '60% Perlu Perbaikan'}</span>
+            <span>{isOptimal ? '100% Sempurna' : diff <= 2 ? '85% Sangat Baik' : '60% Perlu Perbaikan'}</span>
           </div>
           <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
             <div

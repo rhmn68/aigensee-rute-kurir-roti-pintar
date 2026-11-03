@@ -2,8 +2,8 @@
  * Rute Kurir Roti Pintar - Jawaban Rute Optimal Bebas Backtracking untuk Semua Level
  * Kecepatan motor: 1 meter = 30 detik (0.5 menit)
  * 
- * 🌐 Live URL Demo: https://glenrioariesto.github.io/rute-kurir-roti-pintar/
- * 📂 Repository: https://github.com/glenrioariesto/rute-kurir-roti-pintar
+ * Live URL Demo: https://glenrioariesto.github.io/rute-kurir-roti-pintar/
+ * Repository: https://github.com/glenrioariesto/rute-kurir-roti-pintar
  */
 
 export interface OptimalAnswer {

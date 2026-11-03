@@ -1,3 +1,4 @@
+import { Monitor } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { SplashPage } from '@pages/splash/SplashPage';
 import { DashboardPage } from '@pages/dashboard/DashboardPage';
@@ -93,7 +94,7 @@ export default function App() {
             <div id="fullscreen-prompt-icon-wrapper" className="relative flex items-center justify-center mb-6">
               <div className="absolute w-20 h-20 bg-[#037DC2]/20 rounded-full animate-ping opacity-75" />
               <div className="w-16 h-16 bg-[#037DC2]/10 border border-[#037DC2]/30 rounded-2xl flex items-center justify-center text-3xl shadow-sm z-10">
-                📺
+                <Monitor className="w-8 h-8" aria-hidden="true" />
               </div>
             </div>
 

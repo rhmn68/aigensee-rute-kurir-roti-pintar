@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LevelConfig } from '@/types';
-import { BookOpen, HelpCircle, ChevronDown, ChevronUp, Compass, Award } from 'lucide-react';
+import { BookOpen, HelpCircle, ChevronDown, ChevronUp, Compass, Award, Puzzle, Eye, Ruler, Link } from 'lucide-react';
 
 interface CtExplanationPanelProps {
   level: LevelConfig;
@@ -43,7 +43,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
             
             {/* DECOMPOSITION */}
             <div id="ct-explanation-decomposition" className="flex gap-3 bg-indigo-50/20 p-3.5 rounded-xl border border-indigo-100/30">
-              <span className="text-xl shrink-0 select-none">🧩</span>
+              <Puzzle className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
                 <h5 className="text-xs font-extrabold text-indigo-900 uppercase">
                   1. Dekomposisi
@@ -56,7 +56,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
 
             {/* PATTERN RECOGNITION */}
             <div id="ct-explanation-pattern-recognition" className="flex gap-3 bg-teal-50/20 p-3.5 rounded-xl border border-teal-100/30">
-              <span className="text-xl shrink-0 select-none">👁️</span>
+              <Eye className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
                 <h5 className="text-xs font-extrabold text-teal-900 uppercase">
                   2. Pengenalan Pola
@@ -69,7 +69,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
 
             {/* ABSTRACTION */}
             <div id="ct-explanation-abstraction" className="flex gap-3 bg-pink-50/20 p-3.5 rounded-xl border border-pink-100/30">
-              <span className="text-xl shrink-0 select-none">📐</span>
+              <Ruler className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
                 <h5 className="text-xs font-extrabold text-pink-900 uppercase">
                   3. Abstraksi
@@ -82,7 +82,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
 
             {/* ALGORITHM */}
             <div id="ct-explanation-algorithm" className="flex gap-3 bg-amber-50/20 p-3.5 rounded-xl border border-amber-100/30">
-              <span className="text-xl shrink-0 select-none">⛓️</span>
+              <Link className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
                 <h5 className="text-xs font-extrabold text-amber-900 uppercase">
                   4. Algoritma
@@ -100,7 +100,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
             <Compass className="w-5 h-5 text-slate-500 shrink-0 mt-0.5 animate-spin-slow" />
             <div>
               <h5 className="text-xs font-bold text-slate-800 uppercase flex items-center gap-1.5">
-                <span>Penerapan di Dunia Nyata 🌍</span>
+                <span>Penerapan di Dunia Nyata</span>
                 <span className="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   Logistik & Optimasi Rute (TSP)
                 </span>

@@ -81,7 +81,7 @@ export function DashboardPage({ onSelectLevel, isSoundOn, onToggleSound, onPlayC
   const handleCardClick = (levelId: number) => {
     if (levelId > unlockedLevel) {
       onPlayClick();
-      setLockToast(`🔒 Selesaikan Level ${levelId - 1} terlebih dahulu untuk membuka level ini!`);
+      setLockToast(`Selesaikan Level ${levelId - 1} terlebih dahulu untuk membuka level ini!`);
       setTimeout(() => setLockToast(null), 3000);
       return;
     }

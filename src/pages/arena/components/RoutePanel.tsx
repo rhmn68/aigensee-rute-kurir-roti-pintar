@@ -91,7 +91,7 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({
                       }`}
                     >
                       <span className="text-[8.5px] md:text-[11px] opacity-70">#{index + 1}</span>
-                      <span>{isToko ? '🥖 Toko Roti' : `Rumah ${leg.nodeId}`}</span>
+                      <span>{isToko ? 'Toko Roti' : `Rumah ${leg.nodeId}`}</span>
                     </div>
 
                     {!isLast && (
@@ -228,7 +228,7 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({
           className="col-span-2 py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-amber-600 hover:bg-amber-700 active:scale-95 transition flex items-center justify-center gap-2 shadow-md shadow-amber-650/20 disabled:opacity-50 disabled:pointer-events-none"
         >
           <Truck className="w-4 h-4 text-white hover:animate-bounce" />
-          Kirim Kurir Roti 🚚
+          Kirim Kurir Roti
         </button>
       </div>
     </div>

@@ -418,7 +418,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
               : 'border-slate-200/80 text-slate-600'
           }`}
         >
-          📋 Rute
+           Rute
         </button>
 
         {/* Reset button */}
@@ -439,7 +439,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
         <div id="arena-route-timeline-panel" className="absolute top-14 left-3 right-3 sm:left-auto sm:right-3 z-20 w-[calc(100%-24px)] sm:w-80 max-h-[60vh] bg-white/75 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col gap-2.5 overflow-hidden animate-fade-in">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2 shrink-0">
             <h4 className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5 font-display">
-              <span>📋 Alur Perjalanan ({legs.length > 0 ? legs.length - 1 : 0} Kunjungan)</span>
+              <span> Alur Perjalanan ({legs.length > 0 ? legs.length - 1 : 0} Kunjungan)</span>
             </h4>
             <button
               id="arena-close-route-timeline-btn"
@@ -481,7 +481,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
                           ? 'bg-amber-100/50 border-amber-300/50 text-amber-800'
                           : 'bg-indigo-50/50 border-indigo-200/50 text-indigo-800'
                       }`}>
-                        {isToko ? '🥖' : index}
+                        {isToko ? 'T' : index}
                       </div>
 
                       {/* Step Content */}
@@ -623,7 +623,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
                   {isBlocked && (
                     <g transform={`translate(${midX},${midY - 24})`}>
                       <rect x="-13" y="-9" width="26" height="16" rx="4" fill="#ef4444" />
-                      <text y="4" textAnchor="middle" fontSize="11">🚧</text>
+                      <path d="M-4 -4 L4 4 M4 -4 L-4 4" stroke="white" strokeWidth="2" aria-label="Jalan ditutup" />
                     </g>
                   )}
                 </g>
