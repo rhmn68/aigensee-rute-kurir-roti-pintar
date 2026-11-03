@@ -1,4 +1,3 @@
-import { Monitor } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { SplashPage } from '@pages/splash/SplashPage';
 import { DashboardPage } from '@pages/dashboard/DashboardPage';
@@ -91,13 +90,6 @@ export default function App() {
       {showFullscreenPrompt && (
         <div id="fullscreen-prompt-modal" className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 select-none animate-fadeIn">
           <div id="fullscreen-prompt-card" className="relative max-w-sm w-full mx-auto bg-white border-[3px] border-[#0f5a31] shadow-2xl rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center">
-            <div id="fullscreen-prompt-icon-wrapper" className="relative flex items-center justify-center mb-6">
-              <div className="absolute w-20 h-20 bg-[#037DC2]/20 rounded-full animate-ping opacity-75" />
-              <div className="w-16 h-16 bg-[#037DC2]/10 border border-[#037DC2]/30 rounded-2xl flex items-center justify-center text-3xl shadow-sm z-10">
-                <Monitor className="w-8 h-8" aria-hidden="true" />
-              </div>
-            </div>
-
             <h3 id="fullscreen-prompt-title" className="text-lg sm:text-xl font-black text-slate-800 tracking-tight mb-2 uppercase font-display">
               Mode Layar Penuh
             </h3>
