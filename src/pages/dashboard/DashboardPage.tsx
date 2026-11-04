@@ -191,8 +191,9 @@ export function DashboardPage({ onSelectLevel, isSoundOn, onToggleSound, onPlayC
 
                   {/* Level Title */}
                   <div className="my-1 sm:my-2 md:my-3 lg:my-5 2xl:my-6 shrink-0">
-                     <h3 id={`dashboard-level-title-${level.id}`} className={`font-black ${isLocked ? 'text-slate-500' : titleColorClass(level.id)} text-[9px] sm:text-xs md:text-base lg:text-lg 2xl:text-2xl leading-tight font-display tracking-wide transition-colors duration-300 pr-1 sm:pr-3 md:pr-8 truncate sm:whitespace-normal`}>
-                      {level.title.replace(/Level \d+: /, '')}
+                     <h3 id={`dashboard-level-title-${level.id}`} className={`font-black ${isLocked ? 'text-slate-500' : titleColorClass(level.id)} text-[9px] sm:text-xs md:text-base lg:text-lg 2xl:text-2xl leading-tight font-display tracking-wide transition-colors duration-300`}>
+                      <span className="block">{level.title.replace(/^Level \d+: /, '').replace(/ \d+ Rumah \+ 1 Toko Roti$/, '')}</span>
+                      <span className="block">{level.houses.filter(house => house.id !== 'Toko' && !house.isWaypoint).length} rumah + 1 Toko Roti</span>
                     </h3>
                   </div>
 
