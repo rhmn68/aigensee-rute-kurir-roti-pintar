@@ -1,3 +1,4 @@
+import { MissionCard } from './MissionCard';
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { ChevronLeft, SkipBack, RotateCcw, Truck, ChevronDown, ChevronUp, HelpCircle, AlertCircle, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import { Connection, LevelConfig } from '@/types';
@@ -806,12 +807,9 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
 
       {/* Soal Badge - mobile: above-right of bottom controls, desktop: right of centered controls */}
       <div id="arena-soal-container" className="absolute z-20 bottom-16 right-3 lg:bottom-3 pointer-events-none animate-fade-in">
-        <img
-          id="arena-soal-img"
-          src={`${BASE}soal-${level.id}.webp`}
-          alt={`Soal Level ${level.id}`}
-          className="h-16 md:h-auto sm:max-w-[180px] lg:max-w-[220px] 2xl:max-w-[450px] w-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.2)] rounded-lg"
-          draggable={false}
+        <MissionCard
+          levelId={level.id}
+          className="w-[230px] sm:w-[180px] lg:w-[220px] 2xl:w-[450px] text-[10px] sm:text-[9px] lg:text-[11px] 2xl:text-xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
         />
       </div>
 

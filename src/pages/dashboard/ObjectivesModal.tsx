@@ -49,7 +49,7 @@ const slides: Slide[] = [
     items: [
       {
         title: 'Abstraksi',
-        text: 'Menyederhanakan peta menjadi grafik jalur.',
+        text: 'Menyederhanakan peta menjadi jaringan rute.',
       },
       {
         title: 'Algoritma',

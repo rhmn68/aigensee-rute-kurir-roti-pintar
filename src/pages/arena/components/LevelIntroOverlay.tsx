@@ -1,3 +1,4 @@
+import { MissionCard } from './MissionCard';
 import React, { useState, useEffect, useCallback } from 'react';
 
 const BASE = import.meta.env.BASE_URL;
@@ -6,12 +7,6 @@ const LEVEL_TOAST_IMAGES: Record<number, string> = {
   1: `${BASE}level-1-toast.webp`,
   2: `${BASE}level-2-toast.webp`,
   3: `${BASE}level-3-toast.webp`,
-};
-
-const SOAL_IMAGES: Record<number, string> = {
-  1: `${BASE}soal-1.webp`,
-  2: `${BASE}soal-2.webp`,
-  3: `${BASE}soal-3.webp`,
 };
 
 const LEVEL_BORDER_COLORS: Record<number, string> = {
@@ -64,7 +59,6 @@ export const LevelIntroOverlay: React.FC<LevelIntroOverlayProps> = ({ levelId, o
   if (phase === 'done') return null;
 
   const toastSrc = LEVEL_TOAST_IMAGES[levelId] || LEVEL_TOAST_IMAGES[1];
-  const soalSrc = SOAL_IMAGES[levelId] || SOAL_IMAGES[1];
   const borderColor = LEVEL_BORDER_COLORS[levelId] || LEVEL_BORDER_COLORS[1];
 
   const isExit = phase === 'exit';
@@ -161,12 +155,9 @@ export const LevelIntroOverlay: React.FC<LevelIntroOverlayProps> = ({ levelId, o
           className="relative z-10 flex-1 flex flex-col items-center justify-center gap-2.5 sm:gap-4 px-4 min-h-0"
         >
           <div className="relative" style={soalStyle}>
-            <img
-              id="level-intro-soal-img"
-              src={soalSrc}
-              alt={`Soal Level ${levelId}`}
-              className="max-w-[88vw] sm:max-w-[68vw] md:max-w-[480px] lg:max-w-[540px] max-h-[22vh] sm:max-h-[24vh] w-auto object-contain drop-shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
-              draggable={false}
+            <MissionCard
+              levelId={levelId}
+              className="w-[88vw] sm:w-[68vw] md:w-[480px] lg:w-[540px] text-xs sm:text-base lg:text-xl drop-shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
             />
           </div>
 

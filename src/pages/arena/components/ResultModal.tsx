@@ -105,7 +105,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           </h3>
           
           <div id="result-modal-score-badge" className={`mt-1 sm:mt-2 ${theme.scoreBadge} px-3.5 sm:px-5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wider uppercase font-display backdrop-blur-xs`}>
-            Skor Uji: {score} Poin
+            Skor: {score} Poin
           </div>
         </div>
 
