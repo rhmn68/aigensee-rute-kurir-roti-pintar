@@ -48,43 +48,43 @@ const getModalTheme = (levelId: number = 1) => {
 const getSlides = (accentText: string): Slide[] => [
   {
     icon: <Route className="w-4 h-4" />,
-    title: 'TUJUAN PERMAINAN :',
+    title: 'Petunjuk Permainan',
     tips: [
-      <>Temukan <strong className={`${accentText} font-extrabold`}>rute terpendek / paling efisien</strong> untuk mengunjungi seluruh rumah warga.</>,
-      <>Perjalanan dimulai dari <strong className={`${accentText} font-extrabold`}>Toko Roti</strong>, mengunjungi seluruh rumah warga, kemudian <strong className={`${accentText} font-extrabold`}>wajib kembali ke Toko Roti</strong> pada setiap level! Semakin pendek rute yang dipilih, semakin <strong className={`${accentText} font-extrabold`}>tinggi skor</strong> kamu!</>,
+      <>Temukan <strong className={`${accentText} font-extrabold`}>rute terpendek paling efisien</strong> untuk mengunjungi rumah warga.</>,
+      <>Perjalanan dimulai dari <strong className={`${accentText} font-extrabold`}>Toko Roti</strong>, mengunjungi seluruh rumah warga, kemudian <strong className={`${accentText} font-extrabold`}>wajib kembali ke Toko Roti</strong> pada setiap level. Semakin pendek rute yang dipilih, semakin <strong className={`${accentText} font-extrabold`}>tinggi skor</strong> kamu.</>,
     ],
   },
   {
     icon: <MousePointerClick className="w-4 h-4" />,
-    title: 'MENYUSUN RUTE :',
+    title: 'Menyusun Rute',
     tips: [
-      <>Ketuk <strong className={`${accentText} font-extrabold`}>Toko Roti</strong> sebagai titik awal, lalu ketuk <strong className={`${accentText} font-extrabold`}>rumah-rumah (A, B, C, ...)</strong> secara berurutan.</>,
-      <>Gunakan <strong className={`${accentText} font-extrabold`}>titik persimpangan jalan</strong> untuk menghubungkan jalur antar rumah.</>,
+      <>Ketuk <strong className={`${accentText} font-extrabold`}>Toko Roti</strong> sebagai titik awal, lalu ketuk <strong className={`${accentText} font-extrabold`}>rumah-rumah (A, B, C, dan seterusnya)</strong> secara berurutan.</>,
+      <>Gunakan <strong className={`${accentText} font-extrabold`}>titik persimpangan jalan</strong> untuk menghubungkan jalur antarrumah.</>,
     ],
   },
   {
     icon: <ZoomIn className="w-4 h-4" />,
-    title: 'NAVIGASI PETA :',
+    title: 'Navigasi Peta',
     tips: [
-      <><strong className={`${accentText} font-extrabold`}>Geser peta</strong> dengan menyeret layar. <strong className={`${accentText} font-extrabold`}>Cubit layar</strong> atau <strong className={`${accentText} font-extrabold`}>gulir roda tetikus</strong> untuk perbesar/perkecil.</>,
-      <>Tekan tombol <strong className={`${accentText} font-extrabold`}>⟳ Tampilan Awal</strong> untuk mengatur ulang kamera peta.</>,
+      <><strong className={`${accentText} font-extrabold`}>Geser peta</strong> dengan menyeret layar. <strong className={`${accentText} font-extrabold`}>Cubit layar</strong> atau <strong className={`${accentText} font-extrabold`}>gulir roda tetikus</strong> untuk memperbesar atau memperkecil peta.</>,
+      <>Tekan tombol <strong className={`${accentText} font-extrabold`}>Tampilan Awal</strong> untuk mengatur ulang kamera peta.</>,
     ],
   },
   {
     icon: <RotateCcw className="w-4 h-4" />,
-    title: 'KONTROL RUTE :',
+    title: 'Kontrol Rute',
     tips: [
       <>Tombol <strong className={`${accentText} font-extrabold`}>Hapus Terakhir</strong> membatalkan titik sebelumnya. Tombol <strong className={`${accentText} font-extrabold`}>Ulangi</strong> menghapus seluruh rute dari awal.</>,
-      <>Atur kecepatan jalan kurir dengan tombol kecepatan (<strong className={`${accentText} font-extrabold`}>1×, 2×, 3×</strong>).</>,
+      <>Atur kecepatan perjalanan kurir dengan tombol kecepatan (<strong className={`${accentText} font-extrabold`}>1×, 2×, 3×</strong>).</>,
     ],
   },
   {
     icon: <Truck className="w-4 h-4" />,
-    title: 'KIRIM KURIR :',
+    title: 'Kirim Kurir',
     tips: [
-      <><strong className={`${accentText} font-extrabold`}>Kurir roti</strong> akan otomatis berjalan melintasi rute yang kamu susun dan sistem akan menghitung <strong className={`${accentText} font-extrabold`}>jarak total</strong> perjalananmu.</>,
-      <><strong className="text-rose-600 font-extrabold"> ATURAN WAJIB:</strong> Pada setiap level, kurir <strong className={`${accentText} font-extrabold`}>wajib kembali ke Toko Roti</strong> setelah mengantarkan pesanan ke seluruh rumah warga agar misi berhasil!</>,
-      <>Cobalah <strong className={`${accentText} font-extrabold`}>berbagai kombinasi rute</strong> untuk mencari jalur yang paling efisien!</>,
+      <><strong className={`${accentText} font-extrabold`}>Kurir roti</strong> akan berjalan secara otomatis melintasi rute yang kamu susun dan sistem akan menghitung <strong className={`${accentText} font-extrabold`}>jarak total</strong> perjalananmu.</>,
+      <><strong className="text-rose-600 font-extrabold">Aturan wajib:</strong> Pada setiap level, kurir <strong className={`${accentText} font-extrabold`}>wajib kembali ke Toko Roti</strong> setelah mengantarkan pesanan ke seluruh rumah warga agar misi berhasil.</>,
+      <>Cobalah <strong className={`${accentText} font-extrabold`}>berbagai kombinasi rute</strong> untuk mencari jalur yang paling efisien.</>,
     ],
   },
 ];
@@ -202,7 +202,7 @@ export function TutorialModal({ isOpen, onClose, onPlayClick, levelId = 1 }: Tut
               onClick={goNext}
               className={`flex-1 py-1 sm:py-2 md:py-2.5 lg:py-3 px-2.5 sm:px-4 md:px-5 rounded-lg sm:rounded-xl md:rounded-2xl text-white font-bold text-[8px] sm:text-[11px] md:text-sm lg:text-base flex items-center justify-center gap-0.5 sm:gap-1 ${theme.bg} ${theme.bgHover} border-b-2 sm:border-b-4 ${theme.borderDark} active:border-b-0 active:translate-y-[2px] sm:active:translate-y-[4px] transition-all font-display tracking-wider cursor-pointer shadow-md`}
             >
-              {isLast ? 'Mulai Bermain!' : 'Lanjut'}
+              {isLast ? 'Mulai Bermain' : 'Lanjut'}
               {!isLast && <ChevronRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />}
             </button>
           </div>
