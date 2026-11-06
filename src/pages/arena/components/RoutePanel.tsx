@@ -2,7 +2,7 @@ import React from 'react';
 import { LevelConfig } from '@/types';
 import { formatTime } from '@utils/findOptimalRoute';
 import {
-  RotateCcw, SkipBack, Truck, Clock, ArrowRight, Sparkles, AlertTriangle, MapPin,
+  RotateCcw, SkipBack, Truck, Clock, ArrowRight, AlertTriangle, MapPin,
 } from 'lucide-react';
 
 interface RoutePanelProps {
@@ -64,7 +64,6 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({
       {/* 1. MANIFEST ROUTE TIMELINE */}
       <div id="route-panel-timeline-card" className="bg-white rounded-2xl p-2 md:p-4 border border-slate-150 flex-1 flex flex-col min-h-[140px] shadow-sm">
         <h4 id="route-panel-timeline-title" className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-1.5">
-          <Sparkles className="w-4 h-4 text-amber-500" />
           <span>Alur Perjalanan Saat Ini</span>
         </h4>
 
@@ -116,7 +115,7 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-amber-650" />
               <div>
-                <p className="text-[10px] text-slate-400 font-medium uppercase leading-none">Jarak Tempuh</p>
+                <p className="text-[10px] text-slate-400 font-medium leading-none">Jarak Tempuh</p>
                 <p id="route-panel-metric-distance" className="text-sm font-extrabold text-slate-700 font-mono mt-0.5">
                   {currentMetrics.distance} m
                 </p>
@@ -127,7 +126,7 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-emerald-600" />
               <div>
-                <p className="text-[10px] text-slate-400 font-medium uppercase leading-none">Waktu Tempuh</p>
+                <p className="text-[10px] text-slate-400 font-medium leading-none">Waktu Tempuh</p>
                 <p id="route-panel-metric-time" className="text-sm font-extrabold text-slate-700 font-mono mt-0.5">
                   {formatTime(currentMetrics.time)}
                 </p>
@@ -166,7 +165,7 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({
       {/* 3. COURIER STATS GAUGES (FOR CONSTRAINTS) */}
       {level.timeLimitMinutes && (
         <div id="route-panel-constraints-card" className="bg-slate-900 text-slate-100 rounded-2xl p-4 border border-slate-805 flex flex-col gap-3 shadow-md">
-          <h4 className="text-xs font-bold text-amber-400 tracking-wider uppercase">
+          <h4 className="text-xs font-bold text-amber-400 tracking-wider">
             Indikator Batasan (Constraints)
           </h4>
 
@@ -177,7 +176,7 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({
                 <Clock className="w-3.5 h-3.5 text-emerald-400" /> Batas Waktu (Sebelum 08:00)
               </span>
               <span className="font-mono text-slate-200">
-                <strong className="font-bold text-white">{formatTime(currentMetrics.time)}</strong> / {formatTime(level.timeLimitMinutes)}
+                <strong className="font-bold text-white">{formatTime(currentMetrics.time)}</strong>/{formatTime(level.timeLimitMinutes)}
               </span>
             </div>
             <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">

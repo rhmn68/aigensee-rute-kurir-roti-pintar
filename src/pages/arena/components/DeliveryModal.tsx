@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { PackageCheck, Sparkles, ArrowRight, Croissant } from 'lucide-react';
+import { PackageCheck, ArrowRight, Croissant } from 'lucide-react';
 
 export interface DeliveryInfo {
   houseId: string;
@@ -125,10 +125,9 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
             </span>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider font-extrabold text-amber-600 font-display">
+                <span className="text-[10px] tracking-wider font-extrabold text-amber-600 font-display">
                   Paket Roti Terkirim!
                 </span>
-                <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" style={{ animationDuration: '6s' }} />
               </div>
               <h3 className="text-sm sm:text-base font-black text-slate-800 font-display">
                 {delivery.houseName}

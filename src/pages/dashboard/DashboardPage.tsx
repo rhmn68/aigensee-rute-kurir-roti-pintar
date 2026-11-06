@@ -170,7 +170,7 @@ export function DashboardPage({ onSelectLevel, isSoundOn, onToggleSound, onPlayC
                   {/* Card Top: Level number + difficulty / Locked Badge */}
                   <div className="flex items-start justify-between shrink-0">
                     <div className="flex flex-col">
-                      <span className="text-[6.5px] sm:text-[8px] md:text-[9px] 2xl:text-xs font-black text-slate-400 tracking-wider uppercase font-display leading-none mb-0.5">
+                      <span className="text-[6.5px] sm:text-[8px] md:text-[9px] 2xl:text-xs font-black text-slate-400 tracking-wider font-display leading-none mb-0.5">
                         Level
                       </span>
                       <span className={`text-base sm:text-2xl md:text-3xl lg:text-4xl 2xl:text-5xl font-black font-display leading-none ${isLocked ? 'text-slate-400' : theme.accentText}`}>

@@ -104,7 +104,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
             {isPerfect ? 'Misi Sukses Sempurna!' : isGood ? 'Misi Sukses!' : 'Misi Selesai!'}
           </h3>
           
-          <div id="result-modal-score-badge" className={`mt-1 sm:mt-2 ${theme.scoreBadge} px-3.5 sm:px-5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wider uppercase font-display backdrop-blur-xs`}>
+          <div id="result-modal-score-badge" className={`mt-1 sm:mt-2 ${theme.scoreBadge} px-3.5 sm:px-5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold tracking-wider font-display backdrop-blur-xs`}>
             Skor: {score} Poin
           </div>
         </div>
@@ -122,11 +122,11 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           {/* Compare mini metrics summary */}
           <div id="result-modal-metrics" className="grid grid-cols-2 gap-2 sm:gap-3 bg-slate-50 p-2.5 sm:p-3.5 rounded-2xl border border-slate-200/80">
             <div className="text-center border-r border-slate-200">
-              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Rute Anda</span>
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 tracking-widest font-display">Rute Anda</span>
               <p className="text-base sm:text-lg font-extrabold text-slate-700 font-sans mt-0.5">{formatDistance(distance)}</p>
             </div>
             <div className="text-center">
-              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest font-display">Rute Optimal</span>
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 tracking-widest font-display">Rute Optimal</span>
               <p className={`text-base sm:text-lg font-extrabold ${theme.optimalText} font-sans mt-0.5`}>{formatDistance(optimalDistance)}</p>
               <p className="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 font-sans">Teoritis Terpendek</p>
             </div>

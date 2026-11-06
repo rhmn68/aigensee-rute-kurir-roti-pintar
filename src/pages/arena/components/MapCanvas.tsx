@@ -439,7 +439,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       {showRouteTimeline && (
         <div id="arena-route-timeline-panel" className="absolute top-14 left-3 right-3 sm:left-auto sm:right-3 z-20 w-[calc(100%-24px)] sm:w-80 max-h-[60vh] bg-white/75 backdrop-blur-md border border-slate-200/80 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col gap-2.5 overflow-hidden animate-fade-in">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2 shrink-0">
-            <h4 className="text-[10px] sm:text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5 font-display">
+            <h4 className="text-[10px] sm:text-xs font-black text-slate-800 tracking-wider flex items-center gap-1.5 font-display">
               <span> Alur Perjalanan ({legs.length > 0 ? legs.length - 1 : 0} Kunjungan)</span>
             </h4>
             <button
@@ -454,7 +454,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
           {/* Live Metrics inside panel */}
           <div className="bg-slate-50/45 backdrop-blur-xs p-2 sm:p-2.5 rounded-xl border border-slate-200 shrink-0">
             <div className="flex flex-col">
-              <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase">Jarak Tempuh</span>
+              <span className="text-[8px] md:text-[9px] font-bold text-slate-400">Jarak Tempuh</span>
               <span className="text-[10.5px] md:text-xs font-extrabold text-slate-700 font-mono mt-0.5">{formatDistance(currentMetrics.distance)}</span>
             </div>
           </div>

@@ -45,7 +45,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
             <div id="ct-explanation-decomposition" className="flex gap-3 bg-indigo-50/20 p-3.5 rounded-xl border border-indigo-100/30">
               <Puzzle className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
-                <h5 className="text-xs font-extrabold text-indigo-900 uppercase">
+                <h5 className="text-xs font-extrabold text-indigo-900">
                   1. Dekomposisi
                 </h5>
                 <p className="text-[8.5px] md:text-[11px] text-slate-600 mt-1 leading-relaxed">
@@ -58,7 +58,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
             <div id="ct-explanation-pattern-recognition" className="flex gap-3 bg-teal-50/20 p-3.5 rounded-xl border border-teal-100/30">
               <Eye className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
-                <h5 className="text-xs font-extrabold text-teal-900 uppercase">
+                <h5 className="text-xs font-extrabold text-teal-900">
                   2. Pengenalan Pola
                 </h5>
                 <p className="text-[8.5px] md:text-[11px] text-slate-600 mt-1 leading-relaxed">
@@ -71,7 +71,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
             <div id="ct-explanation-abstraction" className="flex gap-3 bg-pink-50/20 p-3.5 rounded-xl border border-pink-100/30">
               <Ruler className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
-                <h5 className="text-xs font-extrabold text-pink-900 uppercase">
+                <h5 className="text-xs font-extrabold text-pink-900">
                   3. Abstraksi
                 </h5>
                 <p className="text-[8.5px] md:text-[11px] text-slate-600 mt-1 leading-relaxed">
@@ -84,7 +84,7 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
             <div id="ct-explanation-algorithm" className="flex gap-3 bg-amber-50/20 p-3.5 rounded-xl border border-amber-100/30">
               <Link className="w-5 h-5 shrink-0" aria-hidden="true" />
               <div>
-                <h5 className="text-xs font-extrabold text-amber-900 uppercase">
+                <h5 className="text-xs font-extrabold text-amber-900">
                   4. Algoritma
                 </h5>
                 <p className="text-[8.5px] md:text-[11px] text-slate-600 mt-1 leading-relaxed">
@@ -99,14 +99,14 @@ export const CtExplanationPanel: React.FC<CtExplanationPanelProps> = ({ level })
           <div id="ct-explanation-real-world" className="bg-slate-50 p-4 rounded-xl border border-slate-150 flex gap-3">
             <Compass className="w-5 h-5 text-slate-500 shrink-0 mt-0.5 animate-spin-slow" />
             <div>
-              <h5 className="text-xs font-bold text-slate-800 uppercase flex items-center gap-1.5">
-                <span>Penerapan di Dunia Nyata</span>
+              <h5 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <span>Penerapan Di Dunia Nyata</span>
                 <span className="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   Logistik & Optimasi Rute (TSP)
                 </span>
               </h5>
               <p className="text-[8.5px] md:text-[11px] text-slate-600 leading-relaxed mt-1">
-                Tantangan yang kamu mainkan di game ini adalah perwujudan dari <strong>Travelling Salesperson Problem (TSP / Masalah Penjual Keliling)</strong>. Konsep ini dipakai setiap hari oleh sistem logistik raksasa seperti <strong>Google Maps GPS</strong>, kargo kurir paket pos, pengantar pizza keliling, rute ojek online, dan optimasi jalur sirkuit mikrochip robotik demi menghemat bensin, meminimalkan emisi CO2, dan memotong biaya operasional!
+                Tantangan yang kamu mainkan di game ini adalah perwujudan dari <strong>Travelling Salesperson Problem (TSP/Masalah Penjual Keliling)</strong>. Konsep ini dipakai setiap hari oleh sistem logistik raksasa seperti <strong>Google Maps GPS</strong>, kargo kurir paket pos, pengantar pizza keliling, rute ojek online, dan optimasi jalur sirkuit mikrochip robotik demi menghemat bensin, meminimalkan emisi CO2, dan memotong biaya operasional!
               </p>
             </div>
           </div>

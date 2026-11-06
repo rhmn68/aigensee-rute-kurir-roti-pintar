@@ -178,8 +178,8 @@ export const LevelIntroOverlay: React.FC<LevelIntroOverlayProps> = ({ levelId, o
       {/* Tap to continue hint */}
       {phase === 'petunjuk-visible' && (
         <div id="level-intro-hint" className="relative z-10 mb-[4vh] sm:mb-[6vh] animate-pulse">
-          <span className="text-white/80 text-xs sm:text-sm md:text-base font-semibold tracking-wider uppercase drop-shadow-md">
-            Ketuk untuk mulai
+          <span className="text-white/80 text-xs sm:text-sm md:text-base font-semibold tracking-wider drop-shadow-md">
+            Ketuk Untuk Mulai
           </span>
         </div>
       )}

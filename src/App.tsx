@@ -90,7 +90,7 @@ export default function App() {
       {showFullscreenPrompt && (
         <div id="fullscreen-prompt-modal" className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 select-none animate-fadeIn">
           <div id="fullscreen-prompt-card" className="relative max-w-sm w-full mx-auto bg-white border-[3px] border-[#0f5a31] shadow-2xl rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center">
-            <h3 id="fullscreen-prompt-title" className="text-lg sm:text-xl font-black text-slate-800 tracking-tight mb-2 uppercase font-display">
+            <h3 id="fullscreen-prompt-title" className="text-lg sm:text-xl font-black text-slate-800 tracking-tight mb-2 font-display">
               Mode Layar Penuh
             </h3>
             
@@ -103,7 +103,7 @@ export default function App() {
                 id="fullscreen-prompt-yes-btn"
                 type="button"
                 onClick={enterFullscreen}
-                className="flex-1 bg-[#037DC2] hover:bg-[#074C83] border-b-3 border-[#074C83] text-white font-black py-2.5 rounded-xl transition-all shadow-md active:translate-y-[2px] active:border-b-0 cursor-pointer uppercase tracking-wide font-display text-xs"
+                className="flex-1 bg-[#037DC2] hover:bg-[#074C83] border-b-3 border-[#074C83] text-white font-black py-2.5 rounded-xl transition-all shadow-md active:translate-y-[2px] active:border-b-0 cursor-pointer tracking-wide font-display text-xs"
               >
                 Yes
               </button>
@@ -115,7 +115,7 @@ export default function App() {
                   playClick();
                   setShowFullscreenPrompt(false);
                 }}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-black py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer uppercase tracking-wide font-display text-xs"
+                className="flex-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-black py-2.5 rounded-xl transition-all active:scale-95 cursor-pointer tracking-wide font-display text-xs"
               >
                 No
               </button>

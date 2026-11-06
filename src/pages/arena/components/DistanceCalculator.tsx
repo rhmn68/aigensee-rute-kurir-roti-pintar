@@ -29,7 +29,7 @@ export const DistanceCalculator: React.FC<DistanceCalculatorProps> = ({
         {/* Your Route kilometer card */}
         <div id="distance-calculator-user-card" className="bg-slate-50 border border-slate-150 rounded-xl p-4 flex flex-col justify-between">
           <div>
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Rute Kamu</span>
+            <span className="text-[10px] tracking-wider text-slate-400 font-semibold">Rute Kamu</span>
             <p className="text-2xl font-extrabold text-slate-700 font-mono mt-1">
               {currentRoute.length > 1 ? formatDistance(currentDistance) : '--'}
             </p>
@@ -42,7 +42,7 @@ export const DistanceCalculator: React.FC<DistanceCalculatorProps> = ({
         {/* Optimal TSP route kilometer card */}
         <div id="distance-calculator-optimal-card" className="bg-amber-50/40 border border-amber-100 rounded-xl p-4 flex flex-col justify-between">
           <div>
-            <span className="text-[10px] uppercase tracking-wider text-amber-500 font-semibold text-shadow-sm">Rute Terbaik</span>
+            <span className="text-[10px] tracking-wider text-amber-500 font-semibold text-shadow-sm">Rute Terbaik</span>
             <p className="text-2xl font-extrabold text-amber-700 font-mono mt-1">
               {formatDistance(optimalDistance)}
             </p>
@@ -55,7 +55,7 @@ export const DistanceCalculator: React.FC<DistanceCalculatorProps> = ({
         {/* Diff metrics calculated */}
         <div id="distance-calculator-diff-card" className="bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200 rounded-xl p-4 flex flex-col justify-between">
           <div>
-            <span className="text-[10px] uppercase tracking-wider text-amber-600 font-semibold">Selisih Jarak</span>
+            <span className="text-[10px] tracking-wider text-amber-600 font-semibold">Selisih Jarak</span>
             <p
               className={`text-2xl font-extrabold font-mono mt-1 ${
                 !isCompletedRoute
